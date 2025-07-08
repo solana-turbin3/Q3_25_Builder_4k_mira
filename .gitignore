@@ -115,3 +115,6 @@ target/
 node_modules/
 dist/
 test-ledger/
+
+# Always include dev-wallet.json files
+**/dev-wallet.json
