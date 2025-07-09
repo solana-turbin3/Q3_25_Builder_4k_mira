@@ -3,7 +3,7 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 
-use crate::states::Vault;
+use crate::Vault;
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -11,18 +11,18 @@ pub struct Initialize<'info> {
     pub user: Signer<'info>,
 
     #[account(
-      init,
-      payer = user,
-      space = 8 + Vault::INIT_SPACE,
-      seeds = [b"state", user.key().as_ref()],
-      bump,
+        init,
+        payer = user,
+        space = 8 + Vault::INIT_SPACE,
+        seeds = [b"state", user.key().as_ref()],
+        bump,
     )]
     pub state: Account<'info, Vault>,
 
     #[account(
         mut,
-      seeds = [b"vault", state.key().as_ref()],
-      bump,
+        seeds = [b"vault", state.key().as_ref()],
+        bump,
     )]
     pub vault: SystemAccount<'info>,
 
@@ -40,9 +40,9 @@ impl<'info> Initialize<'info> {
             from: self.user.to_account_info(),
             to: self.vault.to_account_info(),
         };
-        let cpi_ctx = CpiContext::new(cpi_program, accounts);
+        let cpi_context = CpiContext::new(cpi_program, accounts);
 
-        transfer(cpi_ctx, rent)?;
+        transfer(cpi_context, rent)?;
 
         Ok(())
     }

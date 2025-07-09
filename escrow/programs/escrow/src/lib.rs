@@ -2,16 +2,19 @@
 #![allow(unexpected_cfgs)]
 use anchor_lang::prelude::*;
 
-mod instructions;
-mod states;
+pub mod constants;
+pub mod error;
+pub mod instructions;
+pub mod state;
 
-use crate::instructions::*;
+pub use constants::*;
+pub use instructions::*;
+pub use state::*;
 
-declare_id!("FkaEo4bXuC3Pg4f7yRdNHks3yXoFvu2cv3MxAfnYuPMN");
+declare_id!("FmfTELFVobNr8Z87YWtQaxsazjgWsetFz2idJRQZwR4o");
 
 #[program]
-pub mod mira_escrow {
-
+pub mod escrow {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {

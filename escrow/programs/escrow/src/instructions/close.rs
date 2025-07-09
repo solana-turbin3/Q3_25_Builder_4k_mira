@@ -1,15 +1,18 @@
-use anchor_lang::prelude::*;
-use anchor_lang::system_program::{transfer, Transfer};
+use anchor_lang::{
+    prelude::*,
+    system_program::{transfer, Transfer},
+};
 
-use crate::states::Vault;
+use crate::Vault;
 
 #[derive(Accounts)]
 pub struct Close<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
+
     #[account(
         mut,
-        close = user,  // Send state account lamports to user
+        close = user,
         seeds = [b"state", user.key().as_ref()],
         bump = state.state_bump,
     )]
@@ -27,25 +30,22 @@ pub struct Close<'info> {
 
 impl<'info> Close<'info> {
     pub fn close(&mut self) -> Result<()> {
-        // Transfer all vault lamports to user
-        let vault_balance = self.vault.lamports();
-
-        if vault_balance > 0 {
+        let lamports = self.vault.lamports();
+        if lamports > 0 {
             let cpi_program = self.system_program.to_account_info();
             let accounts = Transfer {
                 from: self.vault.to_account_info(),
                 to: self.user.to_account_info(),
             };
 
-            let seed = self.state.key();
-            let signer_seeds: &[&[&[u8]]] = &[&[b"vault", seed.as_ref(), &[self.state.vault_bump]]];
+            let seeds = self.state.key();
+            let signer_seeds: &[&[&[u8]]] =
+                &[&[b"vault", seeds.as_ref(), &[self.state.vault_bump]]];
 
-            let cpi_ctx = CpiContext::new_with_signer(cpi_program, accounts, signer_seeds);
+            let cpi_context = CpiContext::new_with_signer(cpi_program, accounts, signer_seeds);
 
-            transfer(cpi_ctx, vault_balance)?;
+            transfer(cpi_context, lamports)?;
         }
-
-        // State account will be automatically closed due to `close = user` constraint
         Ok(())
     }
 }
